@@ -5,6 +5,10 @@ import tkinter as tk
 from tkinter import messagebox, filedialog, PhotoImage
 from Dron import Dron
 from Sistema import Sistema
+from Contenido import Contenido
+from Altura import Altura
+from Mensaje import Mensaje
+from Instruccion import Instruccion
 from ListaDobleEnlazada import ListaDobleEnlazada
 
 
@@ -66,6 +70,7 @@ class Menu():
         self.opcion = 0
         self.listaDrones = ListaDobleEnlazada()
         self.listaSistemas = ListaDobleEnlazada()
+        self.listaMensajes = ListaDobleEnlazada()
         self.estado = True
 
 
@@ -117,9 +122,35 @@ class Menu():
                     nombre = sistema.get('nombre')
                     altM = sistema.find('alturaMaxima').text
                     cantDrones = sistema.find('cantidadDrones').text
-                    self.listaSistemas.agregarAlFinal(Sistema(nombre, altM, cantDrones))
+                    nuevoSitema = Sistema(nombre,altM, cantDrones)
+                    #self.listaSistemas.agregarAlFinal(Sistema(nombre, altM, cantDrones))
+                    for contenido in sistema.findall('contenido'):
+                        dron = contenido.find('dron').text
+                        nuevoContenido = Contenido(dron)
+                        nuevoSitema.listaContenido.agregarAlFinal(nuevoContenido)
+                        for alturas in contenido.findall('alturas'):
+                            for altura in alturas.findall('altura'):
+                                valor = altura.get('valor')
+                                letra = altura.text
+                                nuevaAltura = Altura(valor,letra)
+                                nuevoContenido.listaAlturas.agregarAlFinal(nuevaAltura)
+                    self.listaSistemas.agregarAlFinal(nuevoSitema)
 
-            self.listaSistemas.mostrar2()
+            for mensajes in root.findall('listaMensajes'):
+                for mensaje in mensajes.findall('Mensaje'):
+                    nombre = mensaje.get('nombre')
+                    sistemaDrones = mensaje.find('sistemaDrones').text
+                    nuevoMensaje = Mensaje(nombre, sistemaDrones)
+                    for instrucciones in mensaje.findall('instrucciones'):
+                        for instruccion in instrucciones.findall('instruccion'):
+                            dron = instruccion.get('dron')
+                            altura = instruccion.text
+                            nuevaInstruccion = Instruccion(dron, altura)
+                            nuevoMensaje.listaInstrucciones.agregarAlFinal(nuevaInstruccion)
+                    self.listaMensajes.agregarOrdenado(nuevoMensaje)  
+
+
+            self.listaMensajes.mostrar2()
             messagebox.showinfo("!Carga exitosa¡", "Los datos se han cargado exitosamente")
         else:
             messagebox.showerror("¡ERROR!", f"Ningún archivo seleccionado") 

@@ -10,15 +10,19 @@ class ListaDobleEnlazada:
     def agregarAlFinal(self,data):
         if self.inicio is None:
             self.inicio = data
+            self.final = data
         else:
             actual = self.inicio
             while actual.siguiente is not None:
                 actual = actual.siguiente
+            data.anterior = actual
+            self.final = data
             actual.siguiente = data
 
     def agregarOrdenado(self,data):
         if self.inicio is None:
             self.inicio = data
+            self.final = data
         else:
             actual = self.inicio
             while actual:
@@ -39,6 +43,7 @@ class ListaDobleEnlazada:
                 if actual.siguiente is None:
                     actual.siguiente = data
                     data.anterior = actual
+                    self.final = data
                     break
                 actual = actual.siguiente
 
