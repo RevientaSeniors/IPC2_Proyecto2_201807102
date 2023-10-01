@@ -239,6 +239,3 @@ class Menu():
         cuadro.place(x=10,y=100, width= 500, height=200)
         cuadro.configure(borderwidth=3, relief="solid")
         cuadro.insert(INSERT,' Kenneth Emanuel Solís Ramírez \n201807102\nIntroducción a la programación y computación 2 Seccion A\n4to Semestre\nhttps://github.com/RevientaSeniors/IPC2_Proyecto2_201807102')
-
-    def limpiarPantalla(self):
-        system('cls')
