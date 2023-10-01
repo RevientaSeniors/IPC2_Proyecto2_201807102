@@ -6,7 +6,7 @@ from Dron import Dron
 class Contenido(Nodo):
     def __init__(self, dron):
         super().__init__()
-        self.dron = dron
+        self.nombre = dron
         self.listaAlturas = ListaDobleEnlazada()
 
     def imprimir(self):

@@ -72,13 +72,13 @@
          <contenido>
             <dron>DronZ</dron>
             <alturas>
-               <altura valor="1">2</altura>
+               <altura valor="1">244</altura>
             </alturas>
          </contenido>
       </sistemaDrones>
    </listaSistemasDrones>
    <listaMensajes>
-      <Mensaje nombre="zzzz">
+      <Mensaje nombre="msg">
          <sistemaDrones>SD1</sistemaDrones>
          <instrucciones>
             <instruccion dron="DronX">2</instruccion>
@@ -87,7 +87,7 @@
             <instruccion dron="DronY">1</instruccion>
          </instrucciones>
       </Mensaje>
-      <Mensaje nombre="abc1">
+      <Mensaje nombre="msg2">
          <sistemaDrones>SDF</sistemaDrones>
          <instrucciones>
             <instruccion dron="DronW">1</instruccion>

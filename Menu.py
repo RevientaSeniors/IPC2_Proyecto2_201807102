@@ -1,7 +1,9 @@
 from os import sep, system
+from tkinter.constants import END, INSERT
 import os
 import xml.etree.ElementTree as Et
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox, filedialog, PhotoImage
 from Dron import Dron
 from Sistema import Sistema
@@ -15,7 +17,9 @@ from ListaDobleEnlazada import ListaDobleEnlazada
 class Menu():
     def __init__(self,master):
         self.master = master
+        cuadroTextoEditar = tk.Text(self.master)
         self.master.title('DRON SYSTEM')
+        pantallaGestion = master
 
         # Definiendo el tamaño de la ventana y centrándola en la pantalla
         window_width = 1280
@@ -27,6 +31,8 @@ class Menu():
         self.master.geometry(f'{window_width}x{window_height}+{int(x_coordinate)}+{int(y_coordinate)}')
 
         self.master.configure(bg='gray7')
+        #cuadroTextoEditar.place(x=640,y=300, width= 640, height=540)
+        #cuadroTextoEditar.configure(borderwidth=3, relief="solid")
 
         style_settings = {
             "bg": "yellow2",
@@ -41,22 +47,34 @@ class Menu():
         self.load_btn.pack(pady=5)  # El padding 'pady' añade espacio entre los botones
         #self.load_btn.place(x=1070,y=90)
 
-        self.graph_btn = tk.Button(master, text='CARGAR UN ARCHIVO', command=self.cargarArchivo, **style_settings)
-        self.graph_btn.pack(pady=5)
+        self.cargar_btn = tk.Button(master, text='CARGAR UN ARCHIVO', command=self.cargarArchivo, **style_settings)
+        self.cargar_btn.pack(pady=5)
         #self.graph_btn.place(x=1070,y=180)
 
-        self.delete_btn = tk.Button(master, text='GESTION DE DRONES', command=lambda: self.gestionDrones(), **style_settings)
-        self.delete_btn.pack(pady=5)
+        self.generar_btn = tk.Button(master, text='GENERAR UN ARCHIVO', command=self.generarArchivo, **style_settings)
+        self.generar_btn.pack(pady=5)
+
+        self.gestionDrones_btn = tk.Button(master, text='GESTIÓN DE DRONES', command=lambda: self.gestionDrones(), **style_settings)
+        self.gestionDrones_btn.pack(pady=5)
+
+        self.gestionSistema_btn = tk.Button(master, text='GESTIÓN DE SISTEMAS DE DRONES', command=self.generarGrafica, **style_settings)
+        self.gestionSistema_btn.pack(pady=5)
+
+        self.gestion_msj_btn = tk.Button(master, text='GESTIÓN DE MENSAJES', command=self.gestionMensajes, **style_settings)
+        self.gestion_msj_btn.pack(pady=5)
+
+        self.ayuda_btn = tk.Button(master, text='AYUDA', command=self.datos, **style_settings)
+        self.ayuda_btn.pack(pady=5)
         
         # self.update_btn = tk.Button(master, text='Actualizar elemento', command=lambda: self.actualizar(self.prompt_choice("Escoge un ID"), self.prompt_choice("Escribe el nuevo nombre")), **style_settings)
         # self.update_btn.pack(pady=5)
         
         # Inicializando el label
-        self.elements_label = tk.Label(master, text="", **style_settings)
-        self.elements_label.pack(pady=5)
+        #self.elements_label = tk.Label(master, text="", **style_settings)
+        #self.elements_label.pack(pady=5)
         
         #imagen
-        self.canvas = tk.Canvas(master, width=920, height=540, bg='gray20', scrollregion=(0,0,1000,1000))
+        self.canvas = tk.Canvas(master, width=640, height=540, bg='gray20', scrollregion=(0,0,1000,1000))
         self.canvas.pack(side=tk.LEFT, pady=5)
         
         self.scroll_y = tk.Scrollbar(master, orient="vertical", command=self.canvas.yview)
@@ -67,48 +85,19 @@ class Menu():
         self.canvas.create_window((0,0), window=self.image_label, anchor="nw")
         
         self.image_label.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
-        self.opcion = 0
         self.listaDrones = ListaDobleEnlazada()
         self.listaSistemas = ListaDobleEnlazada()
         self.listaMensajes = ListaDobleEnlazada()
-        self.estado = True
-
-
-    # def showMenu(self):
-    #     while(self.estado):
-    #         self.limpiarPantalla()
-    #         print("────────────── MENÚ ─────────────── ")
-    #         print("│ 1. INICIALIZAR                   │")
-    #         print("│ 2. CARGAR UN ARCHIVO             │")
-    #         print("│ 3. GENERAR UN ARCHIVO            │")
-    #         print("│ 4. GESTIÓN DE DRONES             │")
-    #         print("│ 5. GESTIÓN DE SISTEMAS DE DRONES │")
-    #         print("│ 6. GESTIÓN DE MENSAJES           │")
-    #         print("│ 7. AYUDA                         │")
-    #         print("│ 8. SALIR                         │")
-    #         print("────────────────────────────────────")
-    #         self.opcion = int(input("Elija su opción: "))
-    #         if(self.opcion == 1):
-    #             self.listaDrones.inicializar()  
-    #             input('¡Sistema Inicializado! \n Presione ENTER para continuar...')
-    #         elif self.opcion == 2:
-    #             self.cargarArchivo()
-    #         elif self.opcion == 3:
-    #             print ("ES DRONX ARRIBA DE DRONY?")
-    #             print("baaaaa">"AB")
-    #             input()
-    #         elif self.opcion == 8:
-    #             salir = input('¿Seguro que quiere salir? Y/N \n')   
-    #             if salir == 'Y':
-    #                 self.estado = False
-                
-    #         else:
-    #             input('Valor inválido \n Presione ENTER para continuar')
+        self.listaConfiguraciones = ListaDobleEnlazada()
+        self.centinela =True
 
     def cargarArchivo(self):
         fileName = filedialog.askopenfilename(filetypes=[("XML files", "*.xml")])
         if(fileName):
             self.listaDrones.inicializar()
+            self.listaMensajes.inicializar()
+            self.listaSistemas.inicializar()
+            self.centinela = True
             tree = Et.parse(fileName)
             root = tree.getroot()
 
@@ -123,7 +112,6 @@ class Menu():
                     altM = sistema.find('alturaMaxima').text
                     cantDrones = sistema.find('cantidadDrones').text
                     nuevoSitema = Sistema(nombre,altM, cantDrones)
-                    #self.listaSistemas.agregarAlFinal(Sistema(nombre, altM, cantDrones))
                     for contenido in sistema.findall('contenido'):
                         dron = contenido.find('dron').text
                         nuevoContenido = Contenido(dron)
@@ -147,10 +135,15 @@ class Menu():
                             altura = instruccion.text
                             nuevaInstruccion = Instruccion(dron, altura)
                             nuevoMensaje.listaInstrucciones.agregarAlFinal(nuevaInstruccion)
-                    self.listaMensajes.agregarOrdenado(nuevoMensaje)  
+                    sistema = self.listaSistemas.buscar(sistemaDrones)
+                    sistema.listadoMensajes.agregarOrdenado(nuevoMensaje)
+                    sistema.set_drones(self.listaDrones)
+                    #self.listaMensajes.agregarOrdenado(nuevoMensaje)  
 
-
-            self.listaMensajes.mostrar2()
+            #self.listaConfiguraciones.agregarAlFinal(self.listaMensajes)
+            #self.listaConfiguraciones.agregarAlFinal(self.listaSistemas)
+            #self.listaConfiguraciones.agregarAlFinal(self.listaDrones)
+            #self.listaSistemas.mostrarMensajes()
             messagebox.showinfo("!Carga exitosa¡", "Los datos se han cargado exitosamente")
         else:
             messagebox.showerror("¡ERROR!", f"Ningún archivo seleccionado") 
@@ -160,16 +153,92 @@ class Menu():
         messagebox.showinfo("¡Proceso Exitoso!", "El programa se inicializó exitosamente")
 
     def gestionDrones(self):
-        listado = self.listaDrones.mostrar()
+        listado = self.listaDrones.mostrarDrones()
         nuevodron = tk.simpledialog.askstring("Listado Drones", listado, parent=self.master)
         if nuevodron:
-            nombre = self.listaDrones.buscar(nuevodron)
-            if nombre:
+            dron = self.listaDrones.buscar(nuevodron)
+            if dron:
                messagebox.showerror("¡ERROR!", f"El Dron con nombre {nuevodron} ya existe") 
             else:
                 messagebox.showinfo("¡Agregado!", f"El Dron con nombre {nuevodron} ha sido agregado")
                 self.listaDrones.agregarOrdenado(Dron(nuevodron))
-            
+
+    def generarArchivo(self):
+        nombre = tk.simpledialog.askstring("Listado Drones", "Escribe el nombre para el documento de salida", parent=self.master)
+        f = open(f"{nombre}.xml",'w')
+        f.write(self.listaSistemas.generarXML())
+        f.close
+        messagebox.showinfo("¡Generado!", f"El archivo de salida {nombre} ha sido generado")
+
+    def generarGrafica(self):
+        sistema = self.listaSistemas.inicio
+        if(self.centinela):
+            while(sistema):
+                doc = sistema.nombre
+                dot_string = 'digraph G {\n'
+                dot_string += sistema.to_dot()
+                dot_string += "}\n"
+                with open(f"{doc}.dot", "w") as archivo:
+                    archivo.write(dot_string)
+                os.system(f"dot -Tpng {doc}.dot -o {doc}.png")
+                sistema = sistema.siguiente
+            self.centinela = False
+            messagebox.showinfo("¡Generado!", "El archivo de graficos  ha sido generado")    
+        else:
+            nombre = tk.simpledialog.askstring("Grafica", "Escribe el nombre de la grafica para mostrar", parent=self.master)
+            img = PhotoImage(file=f'{nombre}.png')
+            self.image_label.config(image=img)
+            self.image_label.image = img  
+
+    def gestionMensajes(self):
+        ventana_secundaria = tk.Toplevel()
+        cuadro = tk.Text(ventana_secundaria)
+        ventana_secundaria.title("Gestión de Mensajes")
+        ventana_secundaria.config(width=520, height=310)
+        cuadro.place(x=10,y=100, width= 500, height=200)
+        cuadro.configure(borderwidth=3, relief="solid")
+        lista_msj_btn = ttk.Button(ventana_secundaria, text="Listado de mensajes", command=lambda: cuadro.insert(INSERT,self.listaSistemas.mostrarMensajes()) )
+        lista_msj_btn.place(x=80, y=50)
+        instrucciones_btn = ttk.Button(ventana_secundaria, text="Instrucciones", command=lambda: cuadro.insert(INSERT,self.instrucciones()))
+        instrucciones_btn.place(x=340, y=50)
+
+    def instrucciones(self):
+        cadena = ''
+        nombre = tk.simpledialog.askstring("Listado Mensajes", '¿SISTEMA del mensaje a mostrar?', parent=self.master)
+        sistema = self.listaSistemas.buscar(nombre)
+        if(sistema):
+            cadena += f'-NOMBRE SISTEMA: {sistema.nombre}\n'
+            mensajes = sistema.get_mensajes()
+            mensaje = mensajes.inicio
+            while(mensaje):
+                sistema.get_tabla_estados(mensaje.nombre)
+                cadena +=f' Mensaje a enviar: {sistema.get_mensaje(mensaje.nombre)}\n'
+                mensaje = mensaje.siguiente
+            cadena +=f'  En un tiempo optimo = {sistema.maxTiempo}\n'
+            sistema.inicializarTiempoDrones()
+            doc = f'ins_{sistema.nombre}'
+            dot_string = 'digraph G {\n'
+            dot_string += sistema.to_ins()
+            dot_string += "}\n"
+            with open(f"{doc}.dot", "w") as archivo:
+                archivo.write(dot_string)
+            os.system(f"dot -Tpng {doc}.dot -o {doc}.png")
+            img = PhotoImage(file=f'ins_{sistema.nombre}.png')
+            self.image_label.config(image=img)
+            self.image_label.image = img
+            messagebox.showinfo("¡Generado!", "El archivo de instrucciones  ha sido generado")
+        else:
+            messagebox.showerror("¡ERROR!", f"Sistema no existe") 
+        return cadena
+
+    def datos(self):
+        ventana_secundaria = tk.Toplevel()
+        cuadro = tk.Text(ventana_secundaria)
+        ventana_secundaria.title("Gestión de Mensajes")
+        ventana_secundaria.config(width=520, height=310)
+        cuadro.place(x=10,y=100, width= 500, height=200)
+        cuadro.configure(borderwidth=3, relief="solid")
+        cuadro.insert(INSERT,' Kenneth Emanuel Solís Ramírez \n201807102\nIntroducción a la programación y computación 2 Seccion A\n4to Semestre')
 
     def limpiarPantalla(self):
         system('cls')
