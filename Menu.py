@@ -74,7 +74,7 @@ class Menu():
         #self.elements_label.pack(pady=5)
         
         #imagen
-        self.canvas = tk.Canvas(master, width=640, height=540, bg='gray20', scrollregion=(0,0,1000,1000))
+        self.canvas = tk.Canvas(master, width=1280, height=540, bg='gray20', scrollregion=(0,0,1000,1000))
         self.canvas.pack(side=tk.LEFT, pady=5)
         
         self.scroll_y = tk.Scrollbar(master, orient="vertical", command=self.canvas.yview)
@@ -238,7 +238,7 @@ class Menu():
         ventana_secundaria.config(width=520, height=310)
         cuadro.place(x=10,y=100, width= 500, height=200)
         cuadro.configure(borderwidth=3, relief="solid")
-        cuadro.insert(INSERT,' Kenneth Emanuel Solís Ramírez \n201807102\nIntroducción a la programación y computación 2 Seccion A\n4to Semestre')
+        cuadro.insert(INSERT,' Kenneth Emanuel Solís Ramírez \n201807102\nIntroducción a la programación y computación 2 Seccion A\n4to Semestre\nhttps://github.com/RevientaSeniors/IPC2_Proyecto2_201807102')
 
     def limpiarPantalla(self):
         system('cls')
